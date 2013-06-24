@@ -4,9 +4,9 @@ A software package that computes a variety of isosurface fractal dimension measu
 
 To visulize the local fractal dimension for a specific isovalue, meshcolor reads in an isosurface mesh and a scalar grid and colors the vertices of the mesh beased on the local fractal dimension values.
 
-![ScreenShot](https://github.com/marckhoury/local-fractal/blob/master/screenshot1.png)
+![ScreenShot](https://raw.github.com/marckhoury/local-fractal/master/screenshot1.png)
 
-![ScreenShot](https://github.com/marckhoury/local-fractal/blob/master/screenshot2.png)
+![ScreenShot](https://raw.github.com/marckhoury/local-fractal/master/screenshot2.png)
 
 To construct an isosurface mesh to be used as input for meshcolor, use ijkmcube which can be downloaded from http://www.cse.ohio-state.edu/research/graphics/isotable/.
 

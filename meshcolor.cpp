@@ -21,22 +21,22 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	CmdLine cmd_line;
-	parse_command_line(argc, argv, cmd_line);
+    CmdLine cmd_line;
+    parse_command_line(argc, argv, cmd_line);
 
-	Mesh mesh(cmd_line.in_mesh);
-	Grid grid(cmd_line.in_grid);
+    Mesh mesh(cmd_line.in_mesh);
+    Grid grid(cmd_line.in_grid);
 
-	if(cmd_line.use_4d) {
-		FractalGrid4D fg(grid, cmd_line.region_size, cmd_line.inc);
-		Texture tex(cmd_line.colors);
-		ColorMesh cm(mesh, fg, cmd_line.low_dim, cmd_line.high_dim);
-		cm.apply_color(tex);
-	} else {
-		FractalGrid fg(grid, cmd_line.region_size, cmd_line.isovalue);
-		Texture tex(cmd_line.colors);
-		ColorMesh cm(mesh, fg, cmd_line.low_dim, cmd_line.high_dim);
-		cm.apply_color(tex);
-	}
-	return 0;
+    if(cmd_line.use_4d) {
+        FractalGrid4D fg(grid, cmd_line.region_size, cmd_line.inc);
+        Texture tex(cmd_line.colors);
+        ColorMesh cm(mesh, fg, cmd_line.low_dim, cmd_line.high_dim);
+        cm.apply_color(tex);
+    } else {
+        FractalGrid fg(grid, cmd_line.region_size, cmd_line.isovalue);
+        Texture tex(cmd_line.colors);
+        ColorMesh cm(mesh, fg, cmd_line.low_dim, cmd_line.high_dim);
+        cm.apply_color(tex);
+    }
+    return 0;
 }

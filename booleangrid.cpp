@@ -18,8 +18,8 @@ BooleanGrid::BooleanGrid(Grid& g, int region_size, float isovalue, float dim_lim
     isovalue(isovalue),
     dim_limit(dim_limit)
 {
-	name = g.to_string() + ".rs=" + str(region_size) + ".iso=" + str(isovalue) + ".dim=" + str(dim_limit);
-	build_grid(g);
+    name = g.to_string() + ".rs=" + str(region_size) + ".iso=" + str(isovalue) + ".dim=" + str(dim_limit);
+    build_grid(g);
 }
 
 BooleanGrid::BooleanGrid(const BooleanGrid& rhs)
@@ -120,15 +120,15 @@ void BooleanGrid::build_grid(Grid& g)
 {
     FractalGrid fg(g, region_size, isovalue);
     int offset[8];
-	
+    
     grid.resize(fg.vertex_count());
     for(int i = 0; i < grid.size(); i++) {
         grid[i] = 0;
     }
-	
+    
     axis[0] = fg.get_axis(0), axis[1] = fg.get_axis(1), axis[2] = fg.get_axis(2);
     compute_offset(offset);
-	
+    
     for(int z = 0; z < g.get_axis(2)-1; z++) {
         for(int y = 0; y < g.get_axis(1)-1; y++) {
             for(int x = 0; x < g.get_axis(0)-1; x++) {
@@ -139,7 +139,7 @@ void BooleanGrid::build_grid(Grid& g)
             }
         }
     }
-	
+    
     for(int z = 0; z < fg.get_axis(2); z++) {
         for(int y = 0; y < fg.get_axis(1); y++) {
             for(int x = 0; x < fg.get_axis(0); x++) {
@@ -188,7 +188,7 @@ void BooleanGrid::dilation()
     morphed.resize(grid.size());
     for(int z = 0; z < axis[2]; z++) {
         for(int y = 0; y < axis[1]; y++) {
-			for(int x = 0; x < axis[0]; x++){
+            for(int x = 0; x < axis[0]; x++){
             }
         }
     }

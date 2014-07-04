@@ -6,15 +6,15 @@
 class FractalGaussianFilter : public Filter
 {
 public:
-	FractalGaussianFilter(int region_size, float isovalue, float dim_limit);
+    FractalGaussianFilter(int region_size, float isovalue, float dim_limit);
 
-	virtual void apply(Grid& g);
+    virtual void apply(Grid& g);
 
 private:
-	int neighborhood[27];
-	float isovalue;
-	int region_size;
-	float dim_limit;
+    int neighborhood[27];
+    float isovalue;
+    int region_size;
+    float dim_limit;
 };
 
 #endif

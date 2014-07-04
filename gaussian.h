@@ -6,7 +6,7 @@
 class GaussianFilter : public Filter
 {
 public:
-	virtual void apply(Grid& g);
+    virtual void apply(Grid& g);
 };
 
 #endif

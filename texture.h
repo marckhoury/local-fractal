@@ -5,18 +5,18 @@
 
 struct Color
 {
-	float r,g,b,a;
+    float r,g,b,a;
 };
 
 class Texture
 {
 public:
-	Texture(std::vector<Color>& colors);
-	Color operator[](float coord);
+    Texture(std::vector<Color>& colors);
+    Color operator[](float coord);
 
 private:
-	std::vector<Color> colors;
-	float lerp(float l, float r, float t);
+    std::vector<Color> colors;
+    float lerp(float l, float r, float t);
 };
 
 #endif

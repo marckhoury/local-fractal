@@ -2,22 +2,21 @@
 #define TEXTURE_H
 
 #include <vector>
-#include <iostream>
-using std::vector;
 
 struct Color
 {
-	float r,g,b,a;
+    float r,g,b,a;
 };
 
 class Texture
 {
-private:
-	vector<Color> colors;
-	float Lerp(float l, float r, float t);
 public:
-	Texture(vector<Color>& ci);
-	Color operator[](float coord);
+    Texture(std::vector<Color>& colors);
+    Color operator[](float coord);
+
+private:
+    std::vector<Color> colors;
+    float lerp(float l, float r, float t);
 };
 
 #endif

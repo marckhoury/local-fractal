@@ -1,191 +1,195 @@
 #include "booleangrid.h"
 
-BooleanGrid::BooleanGrid(Grid& g, int region, float isovalue, float dim_limit)
+#include <cmath>
+
+#include "fractalgrid.h"
+#include "grid.h"
+#include "ijkNrrd.h"
+#include "utility.h"
+
+using std::cout;
+using std::endl;
+using std::ostream;
+using std::string;
+using std::vector;
+
+BooleanGrid::BooleanGrid(Grid& g, int region_size, float isovalue, float dim_limit) :
+    region_size(region_size),
+    isovalue(isovalue),
+    dim_limit(dim_limit)
 {
-	name = g.ToString() + ".rs=" + str(region) + ".iso=" + str(isovalue) + ".dim=" + str(dim_limit);
-	region_size = region;
-	iso = isovalue;
-	dim = dim_limit;
-	BuildGrid(g);
+    name = g.to_string() + ".rs=" + str(region_size) + ".iso=" + str(isovalue) + ".dim=" + str(dim_limit);
+    build_grid(g);
 }
 
 BooleanGrid::BooleanGrid(const BooleanGrid& rhs)
 {
-	region_size = rhs.region_size;
-	iso = rhs.iso;
-	dim = rhs.dim;
-	axis[0] = rhs.axis[0], axis[1] = rhs.axis[1], axis[2] = rhs.axis[2];
-	grid.resize(rhs.grid.size());
-	for(int i = 0; i < grid.size(); i++)
-		grid[i] = rhs.grid[i];
+    region_size = rhs.region_size;
+    isovalue = rhs.isovalue;
+    dim_limit = rhs.dim_limit;
+    axis[0] = rhs.axis[0], axis[1] = rhs.axis[1], axis[2] = rhs.axis[2];
+    grid.resize(rhs.grid.size());
+    for(int i = 0; i < grid.size(); i++) {
+        grid[i] = rhs.grid[i];
+    }
 }
 
 BooleanGrid::~BooleanGrid()
 {
 }
 
-void BooleanGrid::Opening()
+void BooleanGrid::opening()
 {
 }
 
-void BooleanGrid::Closing()
+void BooleanGrid::closing()
 {
 }
 
-int BooleanGrid::NumCubes()
+size_t BooleanGrid::cube_count()
 {
-	return (axis[0]-1)*(axis[1]-1)*(axis[2]-1);
+    return (axis[0] - 1)*(axis[1] - 1)*(axis[2] - 1);
 }
 
-int BooleanGrid::NumVertices()
+size_t BooleanGrid::vertex_count()
 {
-	return axis[0]*axis[1]*axis[2];
+    return axis[0]*axis[1]*axis[2];
 }
 
-int BooleanGrid::Axis(int index)
+size_t BooleanGrid::get_axis(int i)
 {
-	return axis[index];
+    return axis[i];
 }
 
-int BooleanGrid::Index(int x, int y, int z)
+size_t BooleanGrid::index(size_t x, size_t y, size_t z)
 {
-	return x + y*axis[0] + z*axis[0]*axis[1];
+    return x + y*axis[0] + z*axis[0]*axis[1];
 }
 
 bool BooleanGrid::operator[](int index)
 {
-	return (grid[index] == 1) ? true : false;
+    return grid[index] == 1;
 }
 
-string BooleanGrid::ToString()
+string BooleanGrid::to_string()
 {
-	return name;
+    return name;
 }
 
-void BooleanGrid::WriteNrrd()
+void BooleanGrid::write_nrrd()
 {
-	string output_filename = name + ".boolean.nhdr";
-	Nrrd *nval;
- 	nval = nrrdNew();
-  	nrrdWrap_nva(nval, &(grid[0]), nrrdTypeInt, 3, axis);
-  	nrrdSave(output_filename.c_str(), nval, NULL);
+    string output_filename = name + ".boolean.nhdr";
+    Nrrd *nval;
+    nval = nrrdNew();
+    nrrdWrap_nva(nval, &(grid[0]), nrrdTypeInt, 3, axis);
+    nrrdSave(output_filename.c_str(), nval, NULL);
 
-  	nrrdNix(nval);
-	cout << "Wrote file " << output_filename << endl;
+    nrrdNix(nval);
+    cout << "Wrote file " << output_filename << endl;
 }
 
 BooleanGrid& BooleanGrid::operator=(const BooleanGrid& rhs)
 {
-	if(this != &rhs)
-	{
-		region_size = rhs.region_size;
-		iso = rhs.iso;
-		dim = rhs.dim;
-		axis[0] = rhs.axis[0], axis[1] = rhs.axis[1], axis[2] = rhs.axis[2];
-		grid.resize(rhs.grid.size());
-		for(int i = 0; i < grid.size(); i++)
-			grid[i] = rhs.grid[i];
-	}
-	return *this;
+    if (this != &rhs) {
+        region_size = rhs.region_size;
+        isovalue = rhs.isovalue;
+        dim_limit = rhs.dim_limit;
+        axis[0] = rhs.axis[0], axis[1] = rhs.axis[1], axis[2] = rhs.axis[2];
+        grid.resize(rhs.grid.size());
+        for(int i = 0; i < grid.size(); i++)
+        grid[i] = rhs.grid[i];
+    }
+    return *this;
 }
 
 ostream& operator<<(ostream& os, BooleanGrid& g)
 {
-	for(int z = 0; z < g.Axis(2); z++)
-	{
-		for(int y = 0; y < g.Axis(1); y++)
-		{
-			for(int x = 0; x < g.Axis(0); x++)
-			{
-				os << g[g.Index(x,y,z)] << " ";
-			}
-			os << endl;
-		}
-		os << endl;
-	}
-	return os;
+    for(int z = 0; z < g.get_axis(2); z++) {
+        for(int y = 0; y < g.get_axis(1); y++) {
+            for(int x = 0; x < g.get_axis(0); x++) {
+                os << g[g.index(x,y,z)] << " ";
+            }
+            os << endl;
+        }
+        os << endl;
+    }
+    return os;
 }
 
-void BooleanGrid::BuildGrid(Grid& g)
+void BooleanGrid::build_grid(Grid& g)
 {
-	FractalGrid fg(g,region_size,iso);
-	int offset[8];
-	grid.resize(fg.NumVertices());
-	for(int i = 0; i < grid.size(); i++)
-		grid[i] = 0;
-	axis[0] = fg.Axis(0), axis[1] = fg.Axis(1), axis[2] = fg.Axis(2);
-	Offset(offset);
-	for(int z = 0; z < g.Axis(2)-1; z++)
-	{
-		for(int y = 0; y < g.Axis(1)-1; y++)
-		{
-			for(int x = 0; x < g.Axis(0)-1; x++)
-			{
-				int iv = g.Index(x,y,z);
-				if(g.Intersected(iv,iso))
-					SetCube(iv,1,offset);
-			}
-		}
-	}
-	for(int z = 0; z < fg.Axis(2); z++)
-	{
-		for(int y = 0; y < fg.Axis(1); y++)
-		{
-			for(int x = 0; x < fg.Axis(0); x++)
-			{
-				int iv = fg.Index(x,y,z);
-				if(grid[iv] == 1)
-					grid[iv] = (fg[iv] > dim) ? 1 : 0;
-			}
-		}
-	}
+    FractalGrid fg(g, region_size, isovalue);
+    int offset[8];
+    
+    grid.resize(fg.vertex_count());
+    for(int i = 0; i < grid.size(); i++) {
+        grid[i] = 0;
+    }
+    
+    axis[0] = fg.get_axis(0), axis[1] = fg.get_axis(1), axis[2] = fg.get_axis(2);
+    compute_offset(offset);
+    
+    for(int z = 0; z < g.get_axis(2)-1; z++) {
+        for(int y = 0; y < g.get_axis(1)-1; y++) {
+            for(int x = 0; x < g.get_axis(0)-1; x++) {
+                int iv = g.index(x,y,z);
+                if (g.intersected(iv, isovalue)) {
+                    set_cube(iv,1,offset);
+                }
+            }
+        }
+    }
+    
+    for(int z = 0; z < fg.get_axis(2); z++) {
+        for(int y = 0; y < fg.get_axis(1); y++) {
+            for(int x = 0; x < fg.get_axis(0); x++) {
+                int iv = fg.index(x,y,z);
+                if(grid[iv] == 1)
+                    grid[iv] = (fg[iv] > dim_limit) ? 1 : 0;
+            }
+        }
+    }
 }
 
-void BooleanGrid::Offset(int offset[8])
+void BooleanGrid::compute_offset(int offset[8])
 {
-	offset[0] = Index(0,0,0);
-	offset[1] = Index(1,0,0);
-	offset[2] = Index(0,1,0);
-	offset[3] = Index(1,1,0);
-	offset[4] = Index(0,0,1);
-	offset[5] = Index(1,0,1);
-	offset[6] = Index(0,1,1);
-	offset[7] = Index(1,1,1);
+    offset[0] = index(0,0,0);
+    offset[1] = index(1,0,0);
+    offset[2] = index(0,1,0);
+    offset[3] = index(1,1,0);
+    offset[4] = index(0,0,1);
+    offset[5] = index(1,0,1);
+    offset[6] = index(0,1,1);
+    offset[7] = index(1,1,1);
 }
 
-void BooleanGrid::SetCube(int iv, int sv, int offset[8])
+void BooleanGrid::set_cube(int iv, int sv, int offset[8])
 {
-	for(int i = 0; i < 8; i++)
-		grid[iv+offset[i]] = sv;
+    for(int i = 0; i < 8; i++) {
+        grid[iv + offset[i]] = sv;
+    }
 }
 
-void BooleanGrid::Erosion()
+void BooleanGrid::erosion()
 {
-	vector<int> morphed;
-	morphed.resize(grid.size());
-	for(int z = 0; z < axis[2]; z++)
-	{
-		for(int y = 0; y < axis[1]; y++)
-		{
-			for(int x = 0; x < axis[0]; x++)
-			{
-				
-			}
-		}
-	}
+    vector<int> morphed;
+    morphed.resize(grid.size());
+    for(int z = 0; z < axis[2]; z++) {
+        for(int y = 0; y < axis[1]; y++) {
+            for(int x = 0; x < axis[0]; x++){
+            }
+        }
+    }
 }
 
-void BooleanGrid::Dilation()
+void BooleanGrid::dilation()
 {
-	vector<int> morphed;
-	morphed.resize(grid.size());
-	for(int z = 0; z < axis[2]; z++)
-	{
-		for(int y = 0; y < axis[1]; y++)
-		{
-			for(int x = 0; x < axis[0]; x++)
-			{
-			}
-		}
-	}
+    vector<int> morphed;
+    morphed.resize(grid.size());
+    for(int z = 0; z < axis[2]; z++) {
+        for(int y = 0; y < axis[1]; y++) {
+            for(int x = 0; x < axis[0]; x++){
+            }
+        }
+    }
 }

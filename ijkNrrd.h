@@ -10,7 +10,7 @@ namespace {
   template <class T> void nrrd2scalar( Nrrd *nrrd, T * sdata)
   {
     std::cerr << "Programming error: Illegal instantiation of template nrrd2scalar."
-	      << std::endl;
+          << std::endl;
     exit(60);
   }
 

@@ -1,10 +1,18 @@
-CC=g++
-OBJECTS1 = cmdline.o grid.o fractalgrid.o sat.o gaussian.o median.o fractalgaussian.o fractalmedian.o gridalgorithms.o booleangrid.o fractalgrid4d.o sat4d.o
-OBJECTS2 = fractalgrid.o grid.o mesh.o texture.o colormesh.o sat.o colorcmdline.o fractalgrid4d.o sat4d.o
-LIBS = -L. libITKNrrdIO.a libz.so
+OS = $(shell uname -s)
+
+ifeq ($(OS),Darwin)
+    CC = clang++
+    OPT = -O2 -std=c++11 -stdlib=libc++
+else
+    CC = g++
+    OPT = -O2 -std=c++0x
+endif
+
+OBJECTS1 = cmdline.o grid.o fractalgrid.o sat.o gaussian.o median.o fractalgaussian.o fractalmedian.o gridalgorithms.o booleangrid.o fractalgrid4d.o sat4d.o utility.o
+OBJECTS2 = fractalgrid.o grid.o mesh.o texture.o colormesh.o sat.o colorcmdline.o fractalgrid4d.o sat4d.o utility.o
+LIBS =  -lz -lNrrdIO
 TARGET1 = fractal
 TARGET2 = meshcolor
-OPT = -O2
 all: fractal meshcolor
 
 meshcolor: $(OBJECTS2)
@@ -60,6 +68,9 @@ texture.o: texture.h texture.cpp
 
 colormesh.o: colormesh.h colormesh.cpp
 	$(CC) $(OPT) -c colormesh.cpp
+
+utility.o: utility.h utility.cpp
+	$(CC) $(OPT) -c utility.cpp
 
 clean:
 	rm *.o fractal meshcolor *~

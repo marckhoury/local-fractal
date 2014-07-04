@@ -4,48 +4,41 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <cmath>
-#include "utility.h"
-#include "grid.h"
-#include "fractalgrid.h"
 
-using std::vector;
-using std::string;
-using std::ostream;
-using std::endl;
-using std::cout;
+class Grid;
 
 class BooleanGrid
 {
-private:
-	vector<int> grid;
-	size_t axis[3];
-	string name;
-	float iso;
-	int region_size;
-	float dim;
-
-	void BuildGrid(Grid& g);	
-	void Offset(int offset[8]);
-	void SetCube(int iv, int sv, int offset[8]);
-	void Erosion();
-	void Dilation();
 public:
-	BooleanGrid(Grid& g, int region, float isovalue, float dim_limit);
-	BooleanGrid(const BooleanGrid& bg);
-	~BooleanGrid();
-	
-	void Opening();
-	void Closing();
-	int NumCubes();
-	int NumVertices();
-	int Axis(int index);
-	int Index(int x, int y, int z);
-	bool operator[](int index);
-	string ToString();
-	void WriteNrrd();
-	BooleanGrid& operator=(const BooleanGrid& rhs);
-	friend ostream& operator<<(ostream& os, BooleanGrid& g); 
+    BooleanGrid(Grid& g, int region_size, float isovalue, float dim_limit);
+    BooleanGrid(const BooleanGrid& bg);
+    ~BooleanGrid();
+    
+    void opening();
+    void closing();
+    size_t cube_count();
+    size_t vertex_count();
+    size_t get_axis(int i);
+    size_t index(size_t x, size_t y, size_t z);
+    bool operator[](int index);
+    std::string to_string();
+    void write_nrrd();
+    BooleanGrid& operator=(const BooleanGrid& rhs);
+    friend std::ostream& operator<<(std::ostream& os, BooleanGrid& g); 
+
+private:
+    std::vector<int> grid;
+    size_t axis[3];
+    std::string name;
+    float isovalue;
+    int region_size;
+    float dim_limit;
+
+    void build_grid(Grid& g);   
+    void compute_offset(int offset[8]);
+    void set_cube(int iv, int sv, int offset[8]);
+    void erosion();
+    void dilation();
 };
 
 #endif

@@ -1,8 +1,17 @@
 #include "colorcmdline.h"
 
+#include <cctype>
+#include <cstdlib>
+#include <iostream>
+
+using std::cerr;
+using std::endl;
+using std::vector;
+using std::string;
+
 string cmd_params[] = {"-fractal_range", "-color_range", "-fractal4d", "-help"};
 
-void Usage()
+void usage()
 {
 	cerr << "Usage: meshcolor [OPTIONS] <region_size> <isovalue> <mesh_file> <grid_file>" << endl;
 	cerr << "OPTIONS:" << endl;
@@ -13,7 +22,7 @@ void Usage()
 	exit(0);
 }
 
-void Help()
+void help()
 {
 	cerr << "Usage: meshcolor [OPTIONS] <region_size> <isovalue> <mesh_file> <grid_file>" << endl;
 	cerr << "OPTIONS:" << endl;
@@ -24,48 +33,48 @@ void Help()
 	exit(0);
 }
 
-Parameter GetParameter(string& s)
+Parameter get_parameter(string& s)
 {
-	for(int i = 0; i < (int)UNKNOWN_PARAM; i++)
-		if(cmd_params[i] == s)
+	for (int i = 0; i < (int)UNKNOWN_PARAM; i++) {
+		if (cmd_params[i] == s) {
 			return Parameter(i);
+        }
+    }
 	return UNKNOWN_PARAM;
 }
 
-void ParseCommandLine(int argc, char* argv[], CmdLine& cmd_line)
+void parse_command_line(int argc, char* argv[], CmdLine& cmd_line)
 {
-	if(argc == 1)
-		Usage();
+	if (argc == 1) {
+		usage();
+    }
 	
-	int argi = 1;
-	while(argi < argc and argv[argi][0] == '-')
-	{
+	int argi = 1, n;
+	while (argi < argc and argv[argi][0] == '-') {
 		string str = argv[argi];
-		Parameter param = GetParameter(str);
-		switch(param)
-		{
+		Parameter param = get_parameter(str);
+		switch(param) {
 			case FRACTAL_RANGE_PARAM:
-			{
 				argi += 2;
-				if(argi >= argc)
-					Usage();
+				if (argi >= argc) {
+					usage();
+                }
 				cmd_line.low_dim = atof(argv[argi-1]);
 				cmd_line.high_dim = atof(argv[argi]);
-			}
 			break;
 			case COLOR_RANGE_PARAM:
-			{
 				argi++;
-				if(argi >= argc)
-					Usage();
-				int n = atoi(argv[argi]);
+				if (argi >= argc) {
+					usage();
+                }
+				n = atoi(argv[argi]);
 				cmd_line.colors.clear();
 				argi++;
-				for(int i = 0; i < n; i++)
-				{
+				for (int i = 0; i < n; i++) {
 					Color ci;
-					if(argi + 2 >= argc)
-						Usage();
+					if (argi + 2 >= argc) {
+						usage();
+                    }
 					ci.r = atof(argv[argi]);
 					ci.g = atof(argv[argi+1]);
 					ci.b = atof(argv[argi+2]);
@@ -74,39 +83,33 @@ void ParseCommandLine(int argc, char* argv[], CmdLine& cmd_line)
 					argi += 3;
 				}
 				argi--;
-			}
 			break;
 			case FRACTAL_4D_PARAM:
-			{
 				argi++;
-				if(argi >= argc)
-					Usage();
+				if(argi >= argc) {
+					usage();
+                }
 				cmd_line.use_4d = true;
 				cmd_line.inc = atoi(argv[argi]);
-			}
 			break;
 			case HELP_PARAM:
-			{
-				Help();
-			}
+				help();
 			break;
 			case UNKNOWN_PARAM:
-			{
-				Usage();
-			}
+				usage();
 			break;
 			default:
 			break;
 		}
 		argi++;
 	}
-	if(argi+3 == argc-1)
-	{
+	if (argi+3 == argc-1) {
 		cmd_line.region_size = atoi(argv[argi]);
 		cmd_line.isovalue = atof(argv[argi+1]);
 		cmd_line.in_mesh = argv[argi+2];
 		cmd_line.in_grid = argv[argi+3];
 	}
-	else
-		Usage();
+	else {
+		usage();
+    }
 }

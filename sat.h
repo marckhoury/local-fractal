@@ -2,27 +2,26 @@
 #define SAT_H
 
 #include <vector>
-#include "grid.h"
+#include <iostream>
 
-using std::vector;
-using std::ostream;
-using std::endl;
+class Grid;
 
 class SAT
 {
-private:
-	vector<int> table;
-	float iso;
-	size_t axis[3];
-	
-	int Index(int x, int y, int z);
-	int BoxCount(Grid& g, int i, int j, int k);
 public:
 	SAT(Grid& g, float isovalue);
 	~SAT();
 
-	int RegionCount(int x, int y, int z, int n);
-	friend ostream& operator<<(ostream& os, SAT& sat);
+	int region_count(int x, int y, int z, int n);
+	friend std::ostream& operator<<(std::ostream& os, SAT& sat);
+
+private:
+	std::vector<int> table;
+	float isovalue;
+	size_t axis[3];
+	
+	int index(int x, int y, int z);
+	int box_count(Grid& g, int i, int j, int k);
 };
 
 #endif

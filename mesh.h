@@ -1,24 +1,14 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <cstdlib>
-
-using std::string;
-using std::ifstream;
-using std::vector;
-using std::stringstream;
-using std::cerr;
-using std::endl;
-using std::ostream;
 
 struct Vertex
 {
-	float x,y,z;
+	float x, y, z;
 };
 
 struct Triangle
@@ -28,22 +18,23 @@ struct Triangle
 
 class Mesh
 {
-private:
-	vector<Vertex> vertices;
-	vector<Triangle> triangles;
-	string name;
-
-	void GetNextLine(ifstream& in, string& line);
-	void ReadOFF(string& file);
 public:
 	Mesh();
-	Mesh(string& file);
-	Vertex GetVertex(int i);
-	Triangle GetTriangle(int i);
-	int VertexCount();
-	int TriangleCount();
-	string ToString();
-	friend ostream& operator<<(ostream& os, Mesh& m);
+	Mesh(std::string& file);
+	Vertex get_vertex(int i);
+	Triangle get_triangle(int i);
+	int vertex_count();
+	int triangle_count();
+	std::string to_string();
+	friend std::ostream& operator<<(std::ostream& os, Mesh& m);
+
+private:
+	std::vector<Vertex> vertices;
+	std::vector<Triangle> triangles;
+	std::string name;
+
+	void get_next_line(std::ifstream& in, std::string& line);
+	void read_off(std::string& file);
 };
 
 #endif

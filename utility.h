@@ -1,39 +1,43 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
 
-using std::string;
-using std::stringstream;
 using std::cout;
+using std::cerr;
 using std::endl;
-using std::vector;
 using std::ofstream;
 using std::ostream;
+using std::string;
+using std::stringstream;
+using std::vector;
 
 template<class T>
 string str(T s)
 {
-	stringstream ss;
-	string res;
-	ss << s;
-	ss >> res;
-	return res;
+    stringstream ss;
+    string res;
+    ss << s;
+    ss >> res;
+    return res;
 }
 
 template<class T>
-void WritePlot(string& outfile, vector<T>& data)
+void write_plot(string& outfile, vector<T>& data)
 {
-	ofstream out(outfile.c_str());
-	for(int i = 0; i < data.size(); i++)
-		out << i << "\t" << data[i] << endl;
-	out.close();
-	cout << "Wrote table " << outfile << endl;
+    ofstream out(outfile.c_str());
+    for(int i = 0; i < data.size(); i++) {
+        out << i << "\t" << data[i] << endl;
+    }
+    out.close();
+    cout << "Wrote table " << outfile << endl;
 }
+
+void fatal_error(const string& err, int code = 1);
 
 #endif

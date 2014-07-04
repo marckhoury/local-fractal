@@ -1,45 +1,60 @@
 #include "fractalmedian.h"
 
-FractalMedianFilter::FractalMedianFilter(int region, float isovalue, float dim_limit)
-{
-	region_size = region;
-	iso = isovalue;
-	dim = dim_limit;
-}
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
 
-void FractalMedianFilter::Apply(Grid& g)
+#include "booleangrid.h"
+#include "grid.h"
+#include "utility.h"
+
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+FractalMedianFilter::FractalMedianFilter(int region_size, float isovalue, float dim_limit) :
+    region_size(region_size),
+    isovalue(isovalue),
+    dim_limit(dim_limit)
+{}
+
+void FractalMedianFilter::apply(Grid& g)
 {
-	BooleanGrid bg(g,region_size,iso,dim);
+	BooleanGrid bg(g, region_size, isovalue, dim_limit);
 	vector<int> filtered;
 	vector<int> neighbors;
 	int filtered_vert_count = 0;
 	int count = 0;
-	filtered.resize(g.NumVertices());
+	filtered.resize(g.vertex_count());
 	neighbors.resize(27);
-	for(int i = 0; i < filtered.size(); i++) //Using -1 to mark unfiltered vertices
+	for (int i = 0; i < filtered.size(); i++) { //Using -1 to mark unfiltered vertices
 		filtered[i] = -1;
-	for(int z = -1; z <= 1; z++)
-		for(int y = -1; y <= 1; y++)
-			for(int x = -1; x <= 1; x++)
-				neighborhood[count++] = g.Index(x,y,z);
+    }
+	for (int z = -1; z <= 1; z++) {
+		for (int y = -1; y <= 1; y++) {
+			for (int x = -1; x <= 1; x++) {
+				neighborhood[count++] = g.index(x, y, z);
+            }
+        }
+    }
 
-	for(int z = 0; z < bg.Axis(2); z++)
-	{
-		for(int y = 0; y < bg.Axis(1); y++)
-		{
-			for(int x = 0; x < bg.Axis(0); x++)
-			{
-				if(bg[bg.Index(x,y,z)])
-				{ 
-					int iv = g.Index(x,y,z);
-					if(x == 0 or y == 0 or z == 0
-						or x == g.Axis(0)-1 or y == g.Axis(1)-1 or z == g.Axis(2)-1)
+	for (int z = 0; z < bg.get_axis(2); z++) {
+		for (int y = 0; y < bg.get_axis(1); y++) {
+			for (int x = 0; x < bg.get_axis(0); x++) {
+				if (bg[bg.index(x, y, z)]) { 
+					int iv = g.index(x, y, z);
+					if (x == 0 || y == 0 || z == 0 ||
+					    x == g.get_axis(0)-1 ||
+                        y == g.get_axis(1)-1 ||
+                        z == g.get_axis(2)-1) {
 						filtered[iv] = g[iv];
-					else
-					{
-						for(int i = 0; i < 27; i++)
-							neighbors[i] = g[iv+neighborhood[i]];
-						sort(neighbors.begin(),neighbors.end());
+					} else {
+						for (int i = 0; i < 27; i++) {
+							neighbors[i] = g[iv + neighborhood[i]];
+                        }
+						sort(neighbors.begin(), neighbors.end());
 						filtered[iv] = neighbors[13];
 					}
 				}
@@ -47,15 +62,14 @@ void FractalMedianFilter::Apply(Grid& g)
 		}
 	}
 
-	for(int i = 0; i < filtered.size(); i++)
-	{
-		if(filtered[i] != -1)
-		{
+	for (int i = 0; i < filtered.size(); i++) {
+		if (filtered[i] != -1) {
 			g[i] = filtered[i];
 			filtered_vert_count++;
 		}
 	}
-	cout << "Percentage of grid " << g.ToString() << " filtered: " << (double)filtered_vert_count/filtered.size()*100 << endl;
-	g.SetName(g.ToString() + ".rs=" + str(region_size) + ".iso=" + str(iso) + ".dim=" + str(dim) + ".median");
+    cout << "Percentage of grid " << g.to_string() << " filtered: " 
+         << (static_cast<double>(filtered_vert_count) / filtered.size())*100 << endl;
+	g.set_name(g.to_string() + ".rs=" + str(region_size) + ".iso=" + str(isovalue) + ".dim=" + str(dim_limit) + ".median");
 }
 

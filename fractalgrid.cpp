@@ -1,5 +1,21 @@
 #include "fractalgrid.h"
 
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "grid.h"
+#include "ijkNrrd.h"
+#include "sat.h"
+#include "utility.h"
+
+using std::cout;
+using std::endl;
+using std::ostream;
+using std::string;
+using std::vector;
+
 FractalGrid::FractalGrid()
 {
 	name = "default";
@@ -8,25 +24,26 @@ FractalGrid::FractalGrid()
 	spacing_flag = false;
 }
 
-FractalGrid::FractalGrid(Grid& g, int region, float isovalue)
+FractalGrid::FractalGrid(Grid& g, int region_size, float isovalue) :
+    region_size(region_size),
+    isovalue(isovalue)
 {
-	name = g.ToString() + ".rs=" + str(region) + ".iso=" + str(isovalue);
-	region_size = region;
-	iso = isovalue;
-	spacing[0] = g.Spacing(0), spacing[1] = g.Spacing(1), spacing[2] = g.Spacing(2);
-	spacing_flag = g.SpacingFlag();
-	BuildGrid(g);
+	name = g.to_string() + ".rs=" + str(region_size) + ".iso=" + str(isovalue);
+	spacing[0] = g.get_spacing(0), spacing[1] = g.get_spacing(1), spacing[2] = g.get_spacing(2);
+	spacing_flag = g.has_spacing();
+    build_grid(g);
 }
 
 FractalGrid::FractalGrid(const FractalGrid& rhs)
 {
 	name = rhs.name;
 	grid.resize(rhs.grid.size());
-	for(int i = 0; i < grid.size(); i++)
+	for (int i = 0; i < grid.size(); i++) {
 		grid[i] = rhs.grid[i];
+    }
 	axis[0] = rhs.axis[0], axis[1] = rhs.axis[1], axis[2] = rhs.axis[2];
 	spacing[0] = rhs.spacing[0], spacing[1] = rhs.spacing[1], spacing[2] = rhs.spacing[2];
-	iso = rhs.iso;
+	isovalue = rhs.isovalue;
 	region_size = rhs.region_size;
 	spacing_flag = rhs.spacing_flag;
 }
@@ -35,49 +52,50 @@ FractalGrid::~FractalGrid()
 {
 }
 
-int FractalGrid::NumCubes()
+size_t FractalGrid::cube_count()
 {
-	return (axis[0]-1)*(axis[1]-1)*(axis[2]-1);
+	return (axis[0] - 1)*(axis[1] - 1)*(axis[2] - 1);
 }
 
-int FractalGrid::NumVertices()
+size_t FractalGrid::vertex_count()
 {
 	return axis[0]*axis[1]*axis[2];
 }
 
-int FractalGrid::Axis(int index)
+size_t FractalGrid::get_axis(int i)
 {
-	return axis[index];
+	return axis[i];
 }
 
-bool FractalGrid::SpacingFlag()
+bool FractalGrid::has_spacing()
 {
 	return spacing_flag;
 }
 
-double FractalGrid::Spacing(int index)
+double FractalGrid::get_spacing(int i)
 {
-	if(!spacing_flag)
+	if (!spacing_flag) {
 		return 1;
-	return spacing[index];
+    }
+	return spacing[i];
 }
 
-int FractalGrid::Index(int x, int y, int z)
+size_t FractalGrid::index(size_t x, size_t y, size_t z)
 {
 	return x + y*axis[0] + z*axis[0]*axis[1];
 }
 
-float& FractalGrid::operator[](int index)
+float& FractalGrid::operator[](int i)
 {
-	return grid[index];
+	return grid[i];
 }
 
-string FractalGrid::ToString()
+string FractalGrid::to_string()
 {
 	return name;
 }
 
-void FractalGrid::WriteNrrd()
+void FractalGrid::write_nrrd()
 {
 	string output_filename = name + ".fractal.nhdr";
 	Nrrd *nval;
@@ -93,15 +111,15 @@ void FractalGrid::WriteNrrd()
 
 FractalGrid& FractalGrid::operator=(const FractalGrid& rhs)
 {
-	if(this != &rhs)
-	{
+	if (this != &rhs) {
 		name = rhs.name;
 		grid.resize(rhs.grid.size());
-		for(int i = 0; i < grid.size(); i++)
+		for (int i = 0; i < grid.size(); i++) {
 			grid[i] = rhs.grid[i];
+        }
 		axis[0] = rhs.axis[0], axis[1] = rhs.axis[1], axis[2] = rhs.axis[2];
 		spacing[0] = rhs.spacing[0], spacing[1] = rhs.spacing[1], spacing[2] = rhs.spacing[2];
-		iso = rhs.iso;
+		isovalue = rhs.isovalue;
 		region_size = rhs.region_size;
 		spacing_flag = rhs.spacing_flag;
 	}
@@ -110,13 +128,10 @@ FractalGrid& FractalGrid::operator=(const FractalGrid& rhs)
 
 ostream& operator<<(ostream& os, FractalGrid& g)
 {
-	for(int z = 0; z < g.Axis(2); z++)
-	{
-		for(int y = 0; y < g.Axis(1); y++)
-		{
-			for(int x = 0; x < g.Axis(0); x++)
-			{
-				os << g[g.Index(x,y,z)] << " ";
+	for(int z = 0; z < g.get_axis(2); z++) {
+		for(int y = 0; y < g.get_axis(1); y++) {
+			for(int x = 0; x < g.get_axis(0); x++) {
+				os << g[g.index(x,y,z)] << " ";
 			}
 			os << endl;
 		}
@@ -125,43 +140,43 @@ ostream& operator<<(ostream& os, FractalGrid& g)
 	return os;
 }
 
-void FractalGrid::BuildGrid(Grid& g)
+void FractalGrid::build_grid(Grid& g)
 {
-	Grid sub = g.Subsample(2);
-	SAT table(g,iso);
-	SAT subtable(sub,iso);
+	Grid sub = g.subsample(2);
+	SAT table(g, isovalue);
+	SAT subtable(sub, isovalue);
 	int offset[8];
-	axis[0] = g.Axis(0), axis[1] = g.Axis(1), axis[2] = g.Axis(2);
+
+	axis[0] = g.get_axis(0), axis[1] = g.get_axis(1), axis[2] = g.get_axis(2);
 	grid.resize(axis[0]*axis[1]*axis[2]);
-	Offset(offset);
-	for(int z = 0; z < sub.Axis(2); z++)
-	{
-		for(int y = 0; y < sub.Axis(1); y++)
-		{
-			for(int x = 0; x < sub.Axis(0); x++)
-			{
-				int cube_count = table.RegionCount(2*x,2*y,2*z,2*region_size);
-				int sub_cube_count = subtable.RegionCount(x,y,z,region_size);
-				int iv = g.Index(2*x,2*y,2*z); //Map from subsampled grid to original
-				if(cube_count == 0) //Place fractal dimension value in grid
-					grid[iv] = 0;
-				else if(sub_cube_count == 0)
-					grid[iv] = 3;
-				else
-					grid[iv] = log(((float)cube_count)/sub_cube_count)/log(2);
+
+	compute_offset(offset);
+	
+    for (int z = 0; z < sub.get_axis(2); z++) {
+		for (int y = 0; y < sub.get_axis(1); y++) {
+			for (int x = 0; x < sub.get_axis(0); x++) {
+				int cube_count = table.region_count(2*x, 2*y, 2*z, 2*region_size);
+				int sub_cube_count = subtable.region_count(x,y,z,region_size);
+				int iv = g.index(2*x, 2*y, 2*z); //Map from subsampled grid to original
 				
-				if(x < sub.Axis(0)-1 and y < sub.Axis(1)-1 and z < sub.Axis(2)-1)
-				{
-					for(int i = 0; i < 8; i++) //Fill in fractal value for ever cube vertex defined by iv
-						grid[iv+offset[i]] = grid[iv];
+                if (cube_count == 0) { //Place fractal dimension value in grid
+					grid[iv] = 0;
+				} else if( sub_cube_count == 0) {
+					grid[iv] = 3;
+				} else {
+					grid[iv] = log(static_cast<float>(cube_count) / sub_cube_count) / log(2);
 				}
-				else  //We'll have to handle the boundary separetely
-				{
-					int index[8][3] = {{0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1}};
-					for(int i = 0; i < 8; i++)
-					{
-						if(2*x + index[i][0] < g.Axis(0) and 2*y+index[i][1] < g.Axis(1) and 2*z+index[i][2] < g.Axis(2))
-							grid[iv+offset[i]] = grid[iv];
+
+				if (x < sub.get_axis(0)-1 && y < sub.get_axis(1)-1 && z < sub.get_axis(2)-1) {
+					for (int i = 0; i < 8; i++) { //Fill in fractal value for ever cube vertex defined by iv
+						grid[iv + offset[i]] = grid[iv];
+                    }
+				} else {  //We'll have to handle the boundary separetely
+					int idx[8][3] = {{0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1}};
+					for (int i = 0; i < 8; i++){
+						if(2*x + idx[i][0] < g.get_axis(0) && 2*y+idx[i][1] < g.get_axis(1) && 2*z+idx[i][2] < g.get_axis(2)) {
+							grid[iv + offset[i]] = grid[iv];
+                        }
 					}
 				}
 			}
@@ -169,14 +184,14 @@ void FractalGrid::BuildGrid(Grid& g)
 	}
 }
 
-void FractalGrid::Offset(int offset[8])
+void FractalGrid::compute_offset(int offset[8])
 {
-	offset[0] = Index(0,0,0);
-	offset[1] = Index(1,0,0);
-	offset[2] = Index(0,1,0);
-	offset[3] = Index(1,1,0);
-	offset[4] = Index(0,0,1);
-	offset[5] = Index(1,0,1);
-	offset[6] = Index(0,1,1);
-	offset[7] = Index(1,1,1);
+	offset[0] = index(0,0,0);
+	offset[1] = index(1,0,0);
+	offset[2] = index(0,1,0);
+	offset[3] = index(1,1,0);
+	offset[4] = index(0,0,1);
+	offset[5] = index(1,0,1);
+	offset[6] = index(0,1,1);
+	offset[7] = index(1,1,1);
 }

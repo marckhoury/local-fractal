@@ -1,18 +1,11 @@
 #ifndef GRID_ALGORITHMS_H
 #define GRID_ALGORITHMS_H
 
-#include <vector>
-#include <algorithm>
-#include <cmath>
 #include <queue>
-#include "grid.h"
-#include "fractalgrid4d.h"
-#include "fractalgrid.h"
+#include <vector>
 
-using std::vector;
-using std::queue;
-using std::min;
-using std::max;
+class Grid;
+class FractalGrid4D;
 
 struct Edge
 {
@@ -22,17 +15,18 @@ struct Edge
 
 class GridAlgorithms
 {
-private:
-	static bool IsValid(int x, int y, int z, Grid& g);
 public:
-	static float FractalDimension(int cubes, int sub_cubes);
-	static double FractalDimension4D(Grid& g, float inc, bool noz);
-	static long IntersectedCubes4D(Grid& g, int inc, bool noz);
-	static vector<int> IntersectedCubes(Grid& g);
-	static vector<int> IntersectedEdges(Grid& g);
-	static vector<float> FractalValues(Grid& g);
-	static queue<Edge> HighFractalEdges(Grid& g, FractalGrid4D fg, float iso, float dim_limit);
-	static void SmoothSurface(Grid& g, int region, int inc, float iso, float dim_limit);
+	static float fractal_dimension(int cubes, int sub_cubes);
+	static double fractal_dimension_4d(Grid& g, float inc, bool noz);
+	static long intersected_cubes_4d(Grid& g, int inc, bool noz);
+	static std::vector<int> intersected_cubes(Grid& g);
+	static std::vector<int> intersected_edges(Grid& g);
+	static std::vector<float> fractal_values(Grid& g);
+	static std::queue<Edge> high_fractal_edges(Grid& g, FractalGrid4D fg, float iso, float dim_limit);
+	static void smooth_surface(Grid& g, int region, int inc, float iso, float dim_limit);
+
+private:
+	static bool is_valid(int x, int y, int z, Grid& g);
 };
 
 #endif

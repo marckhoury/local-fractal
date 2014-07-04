@@ -50,7 +50,7 @@ string Mesh::to_string()
 void Mesh::get_next_line(ifstream& in, string& line)
 {
 	getline(in,line);
-	while (line.length() == 0 or line[0] == '#') {
+	while (line.length() == 0 || line[0] == '#') {
 		getline(in,line);
     }
 }

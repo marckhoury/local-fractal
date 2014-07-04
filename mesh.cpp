@@ -92,9 +92,9 @@ void Mesh::read_off(string& file)
 		ss.clear();
 		ss << line;
 		ss >> dim;
-		if(dim != 3) {
+        if(dim != 3) {
             fatal_error("Only triangular mesh elements are supported.");
-		}
+        }
 		ss >> t.v[0] >> t.v[1] >> t.v[2];
 		triangles[i] = t;
 	}

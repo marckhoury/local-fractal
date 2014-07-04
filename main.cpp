@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 			} else {
 				filter = new MedianFilter();
             }
-		} else {	
+		} else {
             cerr << "Unrecognized filter type: " << cmd_line.filter_type << endl;
         }
 		

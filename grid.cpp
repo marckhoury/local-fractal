@@ -192,13 +192,12 @@ void Grid::read_nrrd(string& infile, vector<int>& g, size_t axis_size[3], double
 	Nrrd *nin = nrrdNew();
 	int num_vert = 1;
 
-	nrrdLoad(nin, infile.c_str(), NULL);                                //Read in scalar data set
+	nrrdLoad(nin, infile.c_str(), NULL);                         //Read in scalar data set
 	nrrdAxisInfoGet_nva(nin, nrrdAxisInfoSize, axis_size);       //Read axis size
 	nrrdAxisInfoGet_nva(nin, nrrdAxisInfoSpacing, grid_spacing); //Read grid spacing
 	spacing_flag = !isnan(grid_spacing[0]);
 	if(nin->dim != 3) {  //Is this a 3D data set?
-		cerr << "Illegal dimension for scalar field: " << nin->dim << endl;
-		exit(1);
+		fatal_error("Illegal dimension for scalar field: " + str(nin->dim)); 
 	}
 
 	for(int i = 0; i < nin->dim; i++) {

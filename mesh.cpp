@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "utility.h"
+
 using std::cerr;
 using std::endl;
 using std::ifstream;
@@ -64,8 +66,7 @@ void Mesh::read_off(string& file)
 
 	get_next_line(in,line);
 	if (line.find("OFF") == -1) {
-		cerr << "Unrecognized OFF file header " << line << endl;
-		exit(0);
+        fatal_error("Unrecognized OFF file header: " + line);
 	}
 	
     get_next_line(in,line);
@@ -92,8 +93,7 @@ void Mesh::read_off(string& file)
 		ss << line;
 		ss >> dim;
 		if(dim != 3) {
-			cerr << "Only triangular mesh elements are supported" << endl;
-			exit(0);
+            fatal_error("Only triangular mesh elements are supported.");
 		}
 		ss >> t.v[0] >> t.v[1] >> t.v[2];
 		triangles[i] = t;

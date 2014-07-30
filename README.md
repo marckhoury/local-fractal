@@ -11,7 +11,7 @@ To visualize the local fractal dimension for a specific isovalue, meshcolor read
 To construct an isosurface mesh to be used as input for meshcolor, use ijkmcube which can be downloaded from http://www.cse.ohio-state.edu/research/graphics/isotable/.
 
 Dependencies:
-libITKNrrdIO (library file included), zlib (shared library file included)
+[NrrdIO](http://teem.sourceforge.net/nrrd/lib.html), zlib
 
 Copyright 2011 Marc Khoury
 Please send any bug reports to marc.khry@gmail.com
